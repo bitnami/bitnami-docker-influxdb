@@ -266,7 +266,10 @@ influxdb_start_bg_noauth() {
     local start_command=("${INFLUXDB_BIN_DIR}/influxd" "-config" "$INFLUXDB_CONF_FILE")
     am_i_root && start_command=("gosu" "$INFLUXDB_DAEMON_USER" "${start_command[@]}")
     INFLUXDB_HTTP_HTTPS_ENABLED=false INFLUXDB_HTTP_BIND_ADDRESS="127.0.0.1:${INFLUXDB_HTTP_PORT_NUMBER}" debug_execute "${start_command[@]}" &
-    wait-for-port "$INFLUXDB_PORT_NUMBER"
+    while ! nc -zw1 127.0.0.1 $INFLUXDB_HTTP_PORT_NUMBER; do
+        sleep 1;
+    done;
+    curl -SL -I 127.0.0.1:$INFLUXDB_HTTP_PORT_NUMBER/ping?wait_for_leader=60s > /dev/null 2>&1
 }
 
 ########################
