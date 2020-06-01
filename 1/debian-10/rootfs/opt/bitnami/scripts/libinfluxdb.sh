@@ -42,6 +42,7 @@ export INFLUXDB_DAEMON_GROUP="influxdb"
 export INFLUXDB_REPORTING_DISABLED="${INFLUXDB_REPORTING_DISABLED:-true}"
 export INFLUXDB_HTTP_PORT_NUMBER="${INFLUXDB_HTTP_PORT_NUMBER:-8086}"
 export INFLUXDB_HTTP_BIND_ADDRESS="${INFLUXDB_HTTP_BIND_ADDRESS:-0.0.0.0:${INFLUXDB_HTTP_PORT_NUMBER}}"
+export INFLUXDB_HTTP_READINESS_TIMEOUT="${INFLUXDB_HTTP_READINESS_TIMEOUT:-60}"
 export INFLUXDB_PORT_NUMBER="${INFLUXDB_PORT_NUMBER:-8088}"
 export INFLUXDB_BIND_ADDRESS="${INFLUXDB_BIND_ADDRESS:-0.0.0.0:${INFLUXDB_PORT_NUMBER}}"
 # Authentication
@@ -305,7 +306,6 @@ influxdb_stop() {
 
 ########################
 # Waits for InfluxDB to be ready
-# Times out after 60 seconds
 # Globals:
 #   INFLUXDB_*
 # Arguments:
@@ -314,7 +314,7 @@ influxdb_stop() {
 #   None
 ########################
 wait-for-influxdb() {
-    curl -SL -I 127.0.0.1:$INFLUXDB_HTTP_PORT_NUMBER/ping?wait_for_leader=60s > /dev/null 2>&1
+    curl -SL -I 127.0.0.1:$INFLUXDB_HTTP_PORT_NUMBER/ping?wait_for_leader=$INFLUXDB_HTTP_READINESS_TIMEOUT\s > /dev/null 2>&1
 }
 
 ########################
