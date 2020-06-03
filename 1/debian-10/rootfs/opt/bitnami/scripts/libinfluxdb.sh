@@ -40,7 +40,6 @@ export INFLUXDB_DAEMON_USER="influxdb"
 export INFLUXDB_DAEMON_GROUP="influxdb"
 # InfluxDB settings
 export INFLUXDB_REPORTING_DISABLED="${INFLUXDB_REPORTING_DISABLED:-true}"
-export INFLUXDB_HTTP_ENABLED="${INFLUXDB_HTTP_ENABLED:-true}"
 export INFLUXDB_HTTP_PORT_NUMBER="${INFLUXDB_HTTP_PORT_NUMBER:-8086}"
 export INFLUXDB_HTTP_BIND_ADDRESS="${INFLUXDB_HTTP_BIND_ADDRESS:-0.0.0.0:${INFLUXDB_HTTP_PORT_NUMBER}}"
 export INFLUXDB_HTTP_READINESS_TIMEOUT="${INFLUXDB_HTTP_READINESS_TIMEOUT:-60}"
@@ -269,12 +268,8 @@ influxdb_start_bg_noauth() {
     am_i_root && start_command=("gosu" "$INFLUXDB_DAEMON_USER" "${start_command[@]}")
     INFLUXDB_HTTP_HTTPS_ENABLED=false INFLUXDB_HTTP_BIND_ADDRESS="127.0.0.1:${INFLUXDB_HTTP_PORT_NUMBER}" debug_execute "${start_command[@]}" &
     wait-for-port "$INFLUXDB_PORT_NUMBER"
-    if [ "$INFLUXDB_HTTP_ENABLED" = "false" ] ; then
-        warn "InfluxDB HTTP API disabled - this might lead to startup issues."
-    else
-        info "Waiting for HTTP API to be ready..."
-        wait-for-port "$INFLUXDB_HTTP_PORT_NUMBER"
-        wait-for-influxdb
+    wait-for-port "$INFLUXDB_HTTP_PORT_NUMBER"
+    wait-for-influxdb
     fi
 }
 ########################
